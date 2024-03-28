@@ -1,18 +1,27 @@
 from django.db import models
 
+class Promotion(models.Model):
+    description = models.CharField(max_length=255)
+    discount = models.FloatField()
+    
 class Collection(models.Model):
     title = models.CharField(max_length=255)
+    featured_product = models.ForeignKey(
+        'Product', on_delete=models.SET_NULL, null=True, related_name='+'
+    )
     
 class Product(models.Model):
     title = models.CharField(max_length=255)
+    slug = models.SlugField(default='-')
     description = models.TextField()
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
     inventory = models.IntegerField()
     create_date = models.DateTimeField(auto_now_add=True)
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(
         Collection, on_delete=models.PROTECT
     )
+    promotions = models.ManyToManyField(Promotion)
     
     
 class Customer(models.Model):
@@ -62,6 +71,7 @@ class Address(models.Model):
     city = models.CharField(max_length=255)
     customer = models.OneToOneField(
         Customer, on_delete=models.CASCADE, primary_key=True) 
+    zip = models.CharField(max_length=255, null=True)
     
     
 class Cart(models.Model):
